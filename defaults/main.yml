@@ -1,0 +1,7 @@
+---
+os_user:
+  name: admin
+  password: password
+  homedir: /home/admin
+  generate_ssh_key: yes
+  additional_ssh_keys: []

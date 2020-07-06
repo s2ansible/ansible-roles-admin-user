@@ -1,0 +1,50 @@
+---
+- name: Create salt
+  shell: |
+    set -o pipefail
+    mktemp -u | awk '{print substr($0, length($0)-8+1)}'
+  args:
+    executable: /bin/bash
+  changed_when: False
+  register: salt
+
+- name: Create hash for password
+  shell: python -c 'import crypt; print crypt.crypt("{{ os_user.password }}", "$6${{ salt.stdout }}")'
+  changed_when: False
+  register: hash_password
+
+- name: Create user
+  user:
+    name: "{{ os_user.name }}"
+    password: "{{ hash_password.stdout }}"
+    state: present
+    generate_ssh_key: "{{ os_user.generate_ssh_key }}"
+    ssh_key_passphrase: "{{ os_user.ssh_key_passphrase }}"
+    home: "{{ os_user.homedir }}"
+    update_password: on_create
+
+- name: Read public_key
+  command: cat {{ os_user.homedir }}/.ssh/id_rsa.pub
+  register: public_key
+  changed_when: false
+  check_mode: no
+
+- name: Write authorized_keys
+  lineinfile:
+    path: "{{ os_user.homedir }}/.ssh/authorized_keys"
+    line: "{{ public_key.stdout }}"
+    owner: "{{ os_user.name }}"
+    group: "{{ os_user.name }}"
+    mode: 0600
+    create: yes
+
+- name: Write additional keys
+  lineinfile:
+    path: "{{ os_user.homedir }}/.ssh/authorized_keys"
+    line: "{{ item }}"
+  with_items: "{{ os_user.additional_ssh_keys }}"
+
+- name: Setup sudo
+  lineinfile:
+    dest: /etc/sudoers
+    line: "{{ os_user.name }} ALL=(ALL) NOPASSWD:ALL"

@@ -1,0 +1,19 @@
+galaxy_info:
+  role_name: os_user
+  author: youyo
+  company: heptagon inc.
+  description: Create os user
+  license: MIT
+  min_ansible_version: 2.8
+  platforms:
+    - name: Amazon
+      versions:
+        - Candidate
+    - name: EL
+      versions:
+        - 7
+
+  galaxy_tags:
+    - system
+
+dependencies: []

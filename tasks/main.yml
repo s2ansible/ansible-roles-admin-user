@@ -19,7 +19,7 @@
     password: "{{ hash_password.stdout }}"
     state: present
     generate_ssh_key: "{{ admin_user.generate_ssh_key }}"
-    ssh_key_passphrase: "{{ admin_user.ssh_key_passphrase }}"
+    ssh_key_passphrase: "{{ ssh_key_passphrase }}"
     home: "{{ admin_user.homedir }}"
     update_password: on_create
 

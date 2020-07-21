@@ -12,6 +12,17 @@
   shell: python -c 'import crypt; print crypt.crypt("{{ admin_user.password }}", "$6${{ salt.stdout }}")'
   changed_when: False
   register: hash_password
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version == "7"
+
+- name: Create hash for password
+  shell: python3 -c 'import crypt; print crypt.crypt("{{ admin_user.password }}", "$6${{ salt.stdout }}")'
+  changed_when: False
+  register: hash_password
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version == "8"
 
 - name: Create user
   user:

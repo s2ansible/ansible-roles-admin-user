@@ -1,33 +1,9 @@
 ---
-- name: Create salt
-  shell: |
-    set -o pipefail
-    mktemp -u | awk '{print substr($0, length($0)-8+1)}'
-  args:
-    executable: /bin/bash
-  changed_when: False
-  register: salt
-
-- name: Create hash for password
-  shell: python -c 'import crypt; print crypt.crypt("{{ admin_user.password }}", "$6${{ salt.stdout }}")'
-  changed_when: False
-  register: hash_password
-  when:
-    - ansible_distribution == "CentOS"
-    - ansible_distribution_major_version == "7"
-
-- name: Create hash for password
-  shell: python3 -c 'import crypt; print crypt.crypt("{{ admin_user.password }}", "$6${{ salt.stdout }}")'
-  changed_when: False
-  register: hash_password
-  when:
-    - ansible_distribution == "CentOS"
-    - ansible_distribution_major_version == "8"
-
 - name: Create user
   user:
     name: "{{ admin_user.name }}"
-    password: "{{ hash_password.stdout }}"
+    password: "{{ admin_user.password | password_hash('sha512') }}"
+    update_password: on_create
     state: present
     generate_ssh_key: "{{ admin_user.generate_ssh_key }}"
     ssh_key_passphrase: "{{ ssh_key_passphrase }}"

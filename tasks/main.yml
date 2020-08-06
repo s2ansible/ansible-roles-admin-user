@@ -30,8 +30,3 @@
     path: "{{ admin_user.homedir }}/.ssh/authorized_keys"
     line: "{{ item }}"
   with_items: "{{ admin_user.additional_ssh_keys }}"
-
-- name: Setup sudo
-  lineinfile:
-    dest: /etc/sudoers
-    line: "{{ admin_user.name }} ALL=(ALL) NOPASSWD:ALL"
